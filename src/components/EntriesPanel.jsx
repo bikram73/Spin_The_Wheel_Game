@@ -6,7 +6,6 @@ export default function EntriesPanel({
   onAddEntry,
   onUpdateEntry,
   onDeleteEntry,
-  onDuplicateEntry,
   onToggleEntry,
   onShuffle,
   onSort,
@@ -59,6 +58,29 @@ export default function EntriesPanel({
     }
     onAddEntry(newEntryName.trim());
     closeAddPopup();
+  };
+
+  const copyEntryText = async (text) => {
+    if (!text) return;
+
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return;
+      } catch {
+        // Fallback for browsers that block clipboard API.
+      }
+    }
+
+    const tempInput = document.createElement('textarea');
+    tempInput.value = text;
+    tempInput.style.position = 'fixed';
+    tempInput.style.opacity = '0';
+    document.body.appendChild(tempInput);
+    tempInput.focus();
+    tempInput.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempInput);
   };
 
   return (
@@ -164,10 +186,10 @@ export default function EntriesPanel({
                 </label>
                 <motion.button
                   className="btn-icon"
-                  onClick={() => onDuplicateEntry(entry.id)}
+                  onClick={() => copyEntryText(entry.name)}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  title="Duplicate entry"
+                  title="Copy entry text"
                 >
                   📋
                 </motion.button>

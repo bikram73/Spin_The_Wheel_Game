@@ -84,16 +84,6 @@ export default function App() {
     });
   };
 
-  const duplicateEntry = (id) => {
-    if (!activeWheel) return;
-    const source = activeWheel.entries.find((entry) => entry.id === id);
-    if (!source) return;
-    updateWheel(activeWheel.id, (wheel) => ({
-      ...wheel,
-      entries: [...wheel.entries, { ...source, id: uuidv4() }],
-    }));
-  };
-
   const shuffleEntries = () => {
     if (!activeWheel) return;
     updateWheel(activeWheel.id, (wheel) => ({
@@ -373,7 +363,6 @@ export default function App() {
                 onAddEntry={addEntry}
                 onUpdateEntry={updateEntry}
                 onDeleteEntry={deleteEntry}
-                onDuplicateEntry={duplicateEntry}
                 onToggleEntry={toggleEntry}
                 onShuffle={shuffleEntries}
                 onSort={sortEntries}
