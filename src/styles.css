@@ -472,6 +472,14 @@ body,
   color: white;
 }
 
+.copy-notice {
+  margin-top: -0.35rem;
+  margin-bottom: 0.2rem;
+  color: #7de8ff;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
 /* ==================== Entries Panel ==================== */
 .entries-panel {
   flex: 1;

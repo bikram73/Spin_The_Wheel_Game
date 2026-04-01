@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function EntriesPanel({
@@ -16,6 +16,8 @@ export default function EntriesPanel({
   const [sortOrder, setSortOrder] = useState('asc');
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [newEntryName, setNewEntryName] = useState('');
+  const [copyNotice, setCopyNotice] = useState('');
+  const copyNoticeTimerRef = useRef(null);
 
   const startEdit = (id, name) => {
     setEditingId(id);
@@ -63,24 +65,39 @@ export default function EntriesPanel({
   const copyEntryText = async (text) => {
     if (!text) return;
 
+    let copied = false;
+
     if (navigator.clipboard?.writeText) {
       try {
         await navigator.clipboard.writeText(text);
-        return;
+        copied = true;
       } catch {
         // Fallback for browsers that block clipboard API.
       }
     }
 
-    const tempInput = document.createElement('textarea');
-    tempInput.value = text;
-    tempInput.style.position = 'fixed';
-    tempInput.style.opacity = '0';
-    document.body.appendChild(tempInput);
-    tempInput.focus();
-    tempInput.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempInput);
+    if (!copied) {
+      const tempInput = document.createElement('textarea');
+      tempInput.value = text;
+      tempInput.style.position = 'fixed';
+      tempInput.style.opacity = '0';
+      document.body.appendChild(tempInput);
+      tempInput.focus();
+      tempInput.select();
+      copied = document.execCommand('copy');
+      document.body.removeChild(tempInput);
+    }
+
+    setCopyNotice(copied ? `Copied: ${text}` : 'Copy failed');
+
+    if (copyNoticeTimerRef.current) {
+      clearTimeout(copyNoticeTimerRef.current);
+    }
+
+    copyNoticeTimerRef.current = setTimeout(() => {
+      setCopyNotice('');
+      copyNoticeTimerRef.current = null;
+    }, 1600);
   };
 
   return (
@@ -127,6 +144,19 @@ export default function EntriesPanel({
           🔤 Sort {sortOrder === 'asc' ? '↑' : '↓'}
         </motion.button>
       </div>
+
+      <AnimatePresence>
+        {copyNotice && (
+          <motion.p
+            className="copy-notice"
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+          >
+            {copyNotice}
+          </motion.p>
+        )}
+      </AnimatePresence>
 
       <div className="entries-list">
         <AnimatePresence>
