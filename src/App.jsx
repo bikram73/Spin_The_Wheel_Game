@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import Wheel from './components/Wheel';
 import EntriesPanel from './components/EntriesPanel';
@@ -62,9 +62,18 @@ export default function App() {
   const [winnerPopup, setWinnerPopup] = useState(null);
   const [combinedPopup, setCombinedPopup] = useState(null);
   const [clearWheelPopupOpen, setClearWheelPopupOpen] = useState(false);
+  const [showLoadingScreen, setShowLoadingScreen] = useState(true);
   const [editingTitleWheelId, setEditingTitleWheelId] = useState(null);
   const [editingDescWheelId, setEditingDescWheelId] = useState(null);
   const wheelRefs = useRef({});
+
+  useEffect(() => {
+    const loadingTimer = setTimeout(() => {
+      setShowLoadingScreen(false);
+    }, 1800);
+
+    return () => clearTimeout(loadingTimer);
+  }, []);
 
   const resolvedActiveWheelId = activeWheelId || wheels[0]?.id || null;
 
@@ -331,6 +340,27 @@ export default function App() {
   const closeCombinedPopup = () => {
     setCombinedPopup(null);
   };
+
+  if (showLoadingScreen) {
+    return (
+      <div className="loading-screen">
+        <div className="loading-glow loading-glow-top" />
+        <div className="loading-glow loading-glow-bottom" />
+        <div className="loading-content">
+          <div className="loading-wheel-wrap">
+            <div className="loading-wheel" />
+            <div className="loading-wheel-center" />
+            <div className="loading-pointer" />
+          </div>
+          <h1>Spin The Wheel</h1>
+          <p>Preparing your wheel experience...</p>
+          <div className="loading-bar">
+            <div className="loading-bar-fill" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="app-container">
