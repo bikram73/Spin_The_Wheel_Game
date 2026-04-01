@@ -47,6 +47,8 @@ const createWheel = (name = 'Wheel') => ({
   title: name,
   description: 'Tap the wheel to spin',
   entries: buildExampleEntries('choice'),
+  backgroundImage: null,
+  centerImage: null,
   results: [],
   isSpinning: false,
   selectedResult: null,
@@ -105,6 +107,38 @@ export default function App() {
     updateWheel(activeWheel.id, (wheel) => ({
       ...wheel,
       entries: buildExampleEntries(type),
+    }));
+  };
+
+  const setActiveWheelBackgroundImage = (imageData) => {
+    if (!activeWheel) return;
+    updateWheel(activeWheel.id, (wheel) => ({
+      ...wheel,
+      backgroundImage: imageData,
+    }));
+  };
+
+  const setActiveWheelCenterImage = (imageData) => {
+    if (!activeWheel) return;
+    updateWheel(activeWheel.id, (wheel) => ({
+      ...wheel,
+      centerImage: imageData,
+    }));
+  };
+
+  const addImagesAsEntries = (images) => {
+    if (!activeWheel || !images.length) return;
+    updateWheel(activeWheel.id, (wheel) => ({
+      ...wheel,
+      entries: [
+        ...wheel.entries,
+        ...images.map((item, index) => ({
+          id: uuidv4(),
+          name: item.name || `Image ${wheel.entries.length + index + 1}`,
+          checked: true,
+          image: item.image,
+        })),
+      ],
     }));
   };
 
@@ -294,10 +328,6 @@ export default function App() {
     updateWheel(activeWheel.id, (wheel) => ({ ...wheel, results: [], selectedResult: null }));
   };
 
-  const addImageToEntry = (id, imageData) => {
-    updateEntry(id, { image: imageData });
-  };
-
   const closeCombinedPopup = () => {
     setCombinedPopup(null);
   };
@@ -388,6 +418,8 @@ export default function App() {
                         }
                       }}
                       entries={activeEntries}
+                      backgroundImage={wheel.backgroundImage}
+                      centerImage={wheel.centerImage}
                       selectedResult={wheel.selectedResult}
                       isSpinning={wheel.isSpinning}
                       onSpin={() => spinWheel(wheel.id)}
@@ -433,7 +465,9 @@ export default function App() {
                 onToggleEntry={toggleEntry}
                 onShuffle={shuffleEntries}
                 onSort={sortEntries}
-                onAddImage={addImageToEntry}
+                onSetBackgroundImage={setActiveWheelBackgroundImage}
+                onSetCenterImage={setActiveWheelCenterImage}
+                onAddImagesAsEntries={addImagesAsEntries}
               />
 
               <div className="panel-bottom-actions">

@@ -10,7 +10,9 @@ export default function EntriesPanel({
   onToggleEntry,
   onShuffle,
   onSort,
-  onAddImage
+  onSetBackgroundImage,
+  onSetCenterImage,
+  onAddImagesAsEntries
 }) {
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState('');
@@ -19,7 +21,11 @@ export default function EntriesPanel({
   const [newEntryName, setNewEntryName] = useState('');
   const [copyNotice, setCopyNotice] = useState('');
   const [selectedExample, setSelectedExample] = useState('choice');
+  const [selectedImageOption, setSelectedImageOption] = useState('background');
   const copyNoticeTimerRef = useRef(null);
+  const backgroundImageInputRef = useRef(null);
+  const centerImageInputRef = useRef(null);
+  const entryImagesInputRef = useRef(null);
 
   const startEdit = (id, name) => {
     setEditingId(id);
@@ -33,15 +39,80 @@ export default function EntriesPanel({
     setEditingId(null);
   };
 
-  const handleImageUpload = (e, id) => {
-    const file = e.target.files[0];
-    if (file) {
+  const readFileAsDataUrl = (file) =>
+    new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = (event) => {
-        onAddImage(id, event.target.result);
-      };
+      reader.onload = (event) => resolve(event.target.result);
+      reader.onerror = () => reject(new Error('Unable to read file'));
       reader.readAsDataURL(file);
+    });
+
+  const handleSingleImageSelection = async (e, type) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
+    try {
+      const imageData = await readFileAsDataUrl(file);
+      if (type === 'background') {
+        onSetBackgroundImage(imageData);
+        setCopyNotice('Background image updated');
+      } else {
+        onSetCenterImage(imageData);
+        setCopyNotice('Center image updated');
+      }
+    } catch {
+      setCopyNotice('Image upload failed');
     }
+
+    if (copyNoticeTimerRef.current) {
+      clearTimeout(copyNoticeTimerRef.current);
+    }
+
+    copyNoticeTimerRef.current = setTimeout(() => {
+      setCopyNotice('');
+      copyNoticeTimerRef.current = null;
+    }, 1600);
+  };
+
+  const handleEntryImagesSelection = async (e) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (files.length === 0) return;
+
+    try {
+      const images = await Promise.all(
+        files.map(async (file) => ({
+          name: file.name.replace(/\.[^/.]+$/, ''),
+          image: await readFileAsDataUrl(file),
+        }))
+      );
+      onAddImagesAsEntries(images);
+      setCopyNotice(`Added ${images.length} image entr${images.length === 1 ? 'y' : 'ies'}`);
+    } catch {
+      setCopyNotice('Image upload failed');
+    }
+
+    if (copyNoticeTimerRef.current) {
+      clearTimeout(copyNoticeTimerRef.current);
+    }
+
+    copyNoticeTimerRef.current = setTimeout(() => {
+      setCopyNotice('');
+      copyNoticeTimerRef.current = null;
+    }, 1600);
+  };
+
+  const handleImageUploadClick = () => {
+    if (selectedImageOption === 'background') {
+      backgroundImageInputRef.current?.click();
+      return;
+    }
+    if (selectedImageOption === 'center') {
+      centerImageInputRef.current?.click();
+      return;
+    }
+    entryImagesInputRef.current?.click();
   };
 
   const activeCount = entries.filter(e => e.checked).length;
@@ -151,7 +222,51 @@ export default function EntriesPanel({
         >
           🔤 Sort {sortOrder === 'asc' ? '↑' : '↓'}
         </motion.button>
+
+        <select
+          className="image-option-select"
+          value={selectedImageOption}
+          onChange={(e) => setSelectedImageOption(e.target.value)}
+          title="Select image action"
+        >
+          <option value="background">Background image</option>
+          <option value="center">Center image</option>
+          <option value="entries">Images as entries</option>
+        </select>
+
+        <motion.button
+          className="btn-small"
+          onClick={handleImageUploadClick}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          title="Upload image"
+        >
+          🖼️ Add Image
+        </motion.button>
       </div>
+
+      <input
+        ref={backgroundImageInputRef}
+        type="file"
+        accept="image/*"
+        onChange={(e) => handleSingleImageSelection(e, 'background')}
+        style={{ display: 'none' }}
+      />
+      <input
+        ref={centerImageInputRef}
+        type="file"
+        accept="image/*"
+        onChange={(e) => handleSingleImageSelection(e, 'center')}
+        style={{ display: 'none' }}
+      />
+      <input
+        ref={entryImagesInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handleEntryImagesSelection}
+        style={{ display: 'none' }}
+      />
 
       <div className="example-controls">
         <span className="example-label">Examples:</span>
@@ -231,15 +346,6 @@ export default function EntriesPanel({
               </div>
 
               <div className="entry-actions">
-                <label className="btn-icon" title="Add image">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageUpload(e, entry.id)}
-                    style={{ display: 'none' }}
-                  />
-                  🖼️
-                </label>
                 <motion.button
                   className="btn-icon"
                   onClick={() => copyEntryText(entry.name)}
