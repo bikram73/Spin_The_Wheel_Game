@@ -15,17 +15,6 @@ export default function ResultsPanel({ results, onClearResults }) {
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
 
-  // Count occurrences of each result
-  const resultCounts = results.reduce((acc, result) => {
-    const existing = acc.find(r => r.name === result.name);
-    if (existing) {
-      existing.count++;
-    } else {
-      acc.push({ name: result.name, count: 1 });
-    }
-    return acc;
-  }, []);
-
   return (
     <motion.section 
       className="panel results-panel"
@@ -60,31 +49,6 @@ export default function ResultsPanel({ results, onClearResults }) {
           </motion.button>
         )}
       </div>
-
-      {/* Results Summary */}
-      {resultCounts.length > 0 && (
-        <div className="results-summary">
-          <p className="summary-title">Most Common:</p>
-          <AnimatePresence>
-            {resultCounts
-              .sort((a, b) => b.count - a.count)
-              .slice(0, 3)
-              .map((item, index) => (
-                <motion.div
-                  key={item.name}
-                  className="summary-item"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                >
-                  <span className="rank">#{index + 1}</span>
-                  <span className="name">{item.name}</span>
-                  <span className="badge">{item.count}x</span>
-                </motion.div>
-              ))}
-          </AnimatePresence>
-        </div>
-      )}
 
       {/* Results List */}
       <div className="results-list">

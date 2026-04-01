@@ -15,6 +15,8 @@ export default function EntriesPanel({
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
+  const [showAddPopup, setShowAddPopup] = useState(false);
+  const [newEntryName, setNewEntryName] = useState('');
 
   const startEdit = (id, name) => {
     setEditingId(id);
@@ -41,6 +43,24 @@ export default function EntriesPanel({
 
   const activeCount = entries.filter(e => e.checked).length;
 
+  const openAddPopup = () => {
+    setNewEntryName('');
+    setShowAddPopup(true);
+  };
+
+  const closeAddPopup = () => {
+    setShowAddPopup(false);
+    setNewEntryName('');
+  };
+
+  const submitAddEntry = () => {
+    if (!newEntryName.trim()) {
+      return;
+    }
+    onAddEntry(newEntryName.trim());
+    closeAddPopup();
+  };
+
   return (
     <motion.section 
       className="panel entries-panel"
@@ -56,7 +76,7 @@ export default function EntriesPanel({
       <div className="panel-controls">
         <motion.button
           className="btn-small"
-          onClick={onAddEntry}
+          onClick={openAddPopup}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           title="Add new entry"
@@ -171,6 +191,46 @@ export default function EntriesPanel({
           <p>No entries yet. Click "Add" to create one!</p>
         </div>
       )}
+
+      <AnimatePresence>
+        {showAddPopup && (
+          <div className="entry-popup-overlay" onClick={closeAddPopup}>
+            <motion.div
+              className="entry-popup"
+              initial={{ opacity: 0, scale: 0.95, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h4>Add Entry</h4>
+              <input
+                type="text"
+                value={newEntryName}
+                onChange={(e) => setNewEntryName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    submitAddEntry();
+                  }
+                  if (e.key === 'Escape') {
+                    closeAddPopup();
+                  }
+                }}
+                placeholder="Enter name"
+                autoFocus
+                className="entry-popup-input"
+              />
+              <div className="entry-popup-actions">
+                <button className="entry-popup-btn cancel" onClick={closeAddPopup}>
+                  Cancel
+                </button>
+                <button className="entry-popup-btn add" onClick={submitAddEntry}>
+                  Add
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.section>
   );
 }

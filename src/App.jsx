@@ -54,13 +54,14 @@ export default function App() {
     );
   };
 
-  const addEntry = () => {
+  const addEntry = (name) => {
     if (!activeWheel) return;
+    const nextName = name?.trim() || `Entry ${activeWheel.entries.length + 1}`;
     updateWheel(activeWheel.id, (wheel) => ({
       ...wheel,
       entries: [
         ...wheel.entries,
-        { id: uuidv4(), name: `Entry ${wheel.entries.length + 1}`, checked: true, image: null },
+        { id: uuidv4(), name: nextName, checked: true, image: null },
       ],
     }));
   };
