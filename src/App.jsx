@@ -248,6 +248,27 @@ export default function App() {
     setPanelTab('entries');
   };
 
+  const clearActiveWheel = () => {
+    if (!activeWheel) return;
+
+    const confirmed = window.confirm('Clear this wheel? This will remove all entries and results.');
+    if (!confirmed) return;
+
+    updateWheel(activeWheel.id, (wheel) => ({
+      ...wheel,
+      entries: [],
+      results: [],
+      selectedResult: null,
+      isSpinning: false,
+    }));
+
+    if (winnerPopup?.wheelId === activeWheel.id) {
+      setWinnerPopup(null);
+    }
+    setCombinedPopup(null);
+    setRecentSpinWinners((prev) => prev.filter((item) => item.wheelId !== activeWheel.id));
+  };
+
   const closeWinnerPopup = () => {
     setWinnerPopup(null);
   };
@@ -410,6 +431,10 @@ export default function App() {
                 onSort={sortEntries}
                 onAddImage={addImageToEntry}
               />
+
+              <div className="panel-bottom-actions">
+                <button className="clear-wheel-button" onClick={clearActiveWheel}>🧹 Clear wheel</button>
+              </div>
 
               <div className="panel-bottom-actions">
                 <button
