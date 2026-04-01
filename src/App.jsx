@@ -59,6 +59,7 @@ export default function App() {
   const [recentSpinWinners, setRecentSpinWinners] = useState([]);
   const [winnerPopup, setWinnerPopup] = useState(null);
   const [combinedPopup, setCombinedPopup] = useState(null);
+  const [clearWheelPopupOpen, setClearWheelPopupOpen] = useState(false);
   const [editingTitleWheelId, setEditingTitleWheelId] = useState(null);
   const [editingDescWheelId, setEditingDescWheelId] = useState(null);
   const wheelRefs = useRef({});
@@ -250,9 +251,11 @@ export default function App() {
 
   const clearActiveWheel = () => {
     if (!activeWheel) return;
+    setClearWheelPopupOpen(true);
+  };
 
-    const confirmed = window.confirm('Clear this wheel? This will remove all entries and results.');
-    if (!confirmed) return;
+  const confirmClearActiveWheel = () => {
+    if (!activeWheel) return;
 
     updateWheel(activeWheel.id, (wheel) => ({
       ...wheel,
@@ -267,6 +270,7 @@ export default function App() {
     }
     setCombinedPopup(null);
     setRecentSpinWinners((prev) => prev.filter((item) => item.wheelId !== activeWheel.id));
+    setClearWheelPopupOpen(false);
   };
 
   const closeWinnerPopup = () => {
@@ -503,6 +507,27 @@ export default function App() {
             </div>
             <div className="winner-popup-actions">
               <button className="winner-btn remove" onClick={closeCombinedPopup}>OK</button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {clearWheelPopupOpen && activeWheel && (
+        <div className="winner-popup-overlay" onClick={() => setClearWheelPopupOpen(false)}>
+          <motion.div
+            className="winner-popup clear-wheel-popup"
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="winner-popup-header">Clear This Wheel?</div>
+            <div className="winner-popup-body clear-wheel-popup-body">
+              This will remove all entries and results from {activeWheel.title}.
+            </div>
+            <div className="winner-popup-actions">
+              <button className="winner-btn close" onClick={() => setClearWheelPopupOpen(false)}>Cancel</button>
+              <button className="winner-btn clear" onClick={confirmClearActiveWheel}>Clear</button>
             </div>
           </motion.div>
         </div>

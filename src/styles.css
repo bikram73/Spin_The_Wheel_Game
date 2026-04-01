@@ -293,6 +293,32 @@ body,
   box-shadow: 0 10px 20px rgba(0, 212, 255, 0.35);
 }
 
+.winner-popup.clear-wheel-popup {
+  width: min(500px, 100%);
+  border-color: rgba(255, 180, 80, 0.35);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.55), 0 0 24px rgba(255, 180, 80, 0.16);
+}
+
+.clear-wheel-popup-body {
+  font-size: clamp(1rem, 3.2vw, 1.25rem);
+  text-align: left;
+  padding: 1.4rem 1.2rem 1.1rem;
+  line-height: 1.35;
+  color: #ffe9c9;
+}
+
+.winner-btn.clear {
+  background: linear-gradient(135deg, #ffbe5c 0%, #ff9a3c 100%);
+  border-color: rgba(255, 190, 92, 0.95);
+  color: #231408;
+  box-shadow: 0 8px 18px rgba(255, 160, 70, 0.28);
+}
+
+.winner-btn.clear:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(255, 160, 70, 0.35);
+}
+
 .winner-btn:active {
   transform: translateY(0);
 }
