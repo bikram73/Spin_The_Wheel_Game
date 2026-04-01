@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function EntriesPanel({
   entries,
   onAddEntry,
+  onApplyExample,
   onUpdateEntry,
   onDeleteEntry,
   onToggleEntry,
@@ -17,6 +18,7 @@ export default function EntriesPanel({
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [newEntryName, setNewEntryName] = useState('');
   const [copyNotice, setCopyNotice] = useState('');
+  const [selectedExample, setSelectedExample] = useState('choice');
   const copyNoticeTimerRef = useRef(null);
 
   const startEdit = (id, name) => {
@@ -100,6 +102,12 @@ export default function EntriesPanel({
     }, 1600);
   };
 
+  const handleExampleChange = (e) => {
+    const nextExample = e.target.value;
+    setSelectedExample(nextExample);
+    onApplyExample(nextExample);
+  };
+
   return (
     <motion.section 
       className="panel entries-panel"
@@ -143,6 +151,24 @@ export default function EntriesPanel({
         >
           🔤 Sort {sortOrder === 'asc' ? '↑' : '↓'}
         </motion.button>
+      </div>
+
+      <div className="example-controls">
+        <span className="example-label">Examples:</span>
+        <select
+          className="example-select"
+          value={selectedExample}
+          onChange={handleExampleChange}
+          title="Select entry example"
+        >
+          <option value="choice">Choices 1-7</option>
+          <option value="prize">Prize 1-7</option>
+          <option value="number">Number 1-7</option>
+          <option value="fruit">Fruits</option>
+          <option value="color">Colors</option>
+          <option value="animal">Animals</option>
+          <option value="country">Countries</option>
+        </select>
       </div>
 
       <AnimatePresence>

@@ -480,6 +480,41 @@ body,
   font-weight: 600;
 }
 
+.example-controls {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.example-label {
+  color: #9fdfff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  min-width: 68px;
+}
+
+.example-select {
+  flex: 1;
+  min-width: 0;
+  padding: 0.45rem 0.6rem;
+  border: 2px solid #00d4ff;
+  border-radius: 8px;
+  background: rgba(0, 212, 255, 0.1);
+  color: #e8f7ff;
+  font-weight: 600;
+}
+
+.example-select:focus {
+  outline: none;
+  border-color: #00d4ff;
+  background: rgba(0, 212, 255, 0.18);
+}
+
+.example-select option {
+  color: #0c1b2f;
+}
+
 /* ==================== Entries Panel ==================== */
 .entries-panel {
   flex: 1;

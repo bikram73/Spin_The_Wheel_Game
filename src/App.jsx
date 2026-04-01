@@ -5,16 +5,48 @@ import EntriesPanel from './components/EntriesPanel';
 import ResultsPanel from './components/ResultsPanel';
 import { motion } from 'framer-motion';
 
+const numberedEntries = (prefix) =>
+  Array.from({ length: 7 }, (_, index) => ({
+    id: uuidv4(),
+    name: `${prefix} ${index + 1}`,
+    checked: true,
+    image: null,
+  }));
+
+const textEntries = (values) =>
+  values.map((name) => ({
+    id: uuidv4(),
+    name,
+    checked: true,
+    image: null,
+  }));
+
+const buildExampleEntries = (type) => {
+  switch (type) {
+    case 'choice':
+      return numberedEntries('Choice');
+    case 'prize':
+      return numberedEntries('Prize');
+    case 'number':
+      return numberedEntries('Number');
+    case 'fruit':
+      return textEntries(['Apple', 'Banana', 'Mango', 'Orange', 'Grapes', 'Pineapple', 'Strawberry']);
+    case 'color':
+      return textEntries(['Red', 'Blue', 'Green', 'Yellow', 'Orange', 'Pink', 'Black']);
+    case 'animal':
+      return textEntries(['Lion', 'Tiger', 'Elephant', 'Zebra', 'Panda', 'Rabbit', 'Dolphin']);
+    case 'country':
+      return textEntries(['India', 'Japan', 'Brazil', 'Canada', 'Italy', 'Egypt', 'Australia']);
+    default:
+      return numberedEntries('Choice');
+  }
+};
+
 const createWheel = (name = 'Wheel') => ({
   id: uuidv4(),
   title: name,
   description: 'Tap the wheel to spin',
-  entries: [
-    { id: uuidv4(), name: 'Ali', checked: true, image: null },
-    { id: uuidv4(), name: 'Beatriz', checked: true, image: null },
-    { id: uuidv4(), name: 'Charles', checked: true, image: null },
-    { id: uuidv4(), name: 'Diya', checked: true, image: null },
-  ],
+  entries: buildExampleEntries('choice'),
   results: [],
   isSpinning: false,
   selectedResult: null,
@@ -63,6 +95,15 @@ export default function App() {
         ...wheel.entries,
         { id: uuidv4(), name: nextName, checked: true, image: null },
       ],
+    }));
+  };
+
+  const applyExampleEntries = (type) => {
+    if (!activeWheel) return;
+
+    updateWheel(activeWheel.id, (wheel) => ({
+      ...wheel,
+      entries: buildExampleEntries(type),
     }));
   };
 
@@ -361,6 +402,7 @@ export default function App() {
               <EntriesPanel
                 entries={activeWheel.entries}
                 onAddEntry={addEntry}
+                onApplyExample={applyExampleEntries}
                 onUpdateEntry={updateEntry}
                 onDeleteEntry={deleteEntry}
                 onToggleEntry={toggleEntry}
