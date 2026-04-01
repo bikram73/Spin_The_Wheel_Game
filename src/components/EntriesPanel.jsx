@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function EntriesPanel({
@@ -21,11 +21,12 @@ export default function EntriesPanel({
   const [newEntryName, setNewEntryName] = useState('');
   const [copyNotice, setCopyNotice] = useState('');
   const [selectedExample, setSelectedExample] = useState('choice');
-  const [selectedImageOption, setSelectedImageOption] = useState('background');
+  const [showImageMenu, setShowImageMenu] = useState(false);
   const copyNoticeTimerRef = useRef(null);
   const backgroundImageInputRef = useRef(null);
   const centerImageInputRef = useRef(null);
   const entryImagesInputRef = useRef(null);
+  const imageDropdownRef = useRef(null);
 
   const startEdit = (id, name) => {
     setEditingId(id);
@@ -103,17 +104,33 @@ export default function EntriesPanel({
     }, 1600);
   };
 
-  const handleImageUploadClick = () => {
-    if (selectedImageOption === 'background') {
+  const triggerImageUpload = (type) => {
+    if (type === 'background') {
       backgroundImageInputRef.current?.click();
       return;
     }
-    if (selectedImageOption === 'center') {
+    if (type === 'center') {
       centerImageInputRef.current?.click();
       return;
     }
     entryImagesInputRef.current?.click();
   };
+
+  const handleImageMenuSelect = (type) => {
+    setShowImageMenu(false);
+    triggerImageUpload(type);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!imageDropdownRef.current?.contains(event.target)) {
+        setShowImageMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const activeCount = entries.filter(e => e.checked).length;
 
@@ -223,26 +240,31 @@ export default function EntriesPanel({
           🔤 Sort {sortOrder === 'asc' ? '↑' : '↓'}
         </motion.button>
 
-        <select
-          className="image-option-select"
-          value={selectedImageOption}
-          onChange={(e) => setSelectedImageOption(e.target.value)}
-          title="Select image action"
-        >
-          <option value="background">Background image</option>
-          <option value="center">Center image</option>
-          <option value="entries">Images as entries</option>
-        </select>
-
-        <motion.button
-          className="btn-small"
-          onClick={handleImageUploadClick}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          title="Upload image"
-        >
-          🖼️ Add Image
-        </motion.button>
+        <div className="image-dropdown" ref={imageDropdownRef}>
+          <button
+            className="image-dropdown-trigger"
+            onClick={() => setShowImageMenu((prev) => !prev)}
+            title="Add image options"
+            type="button"
+          >
+            🖼️ Add image
+            <span className="image-dropdown-caret">▼</span>
+          </button>
+          <AnimatePresence>
+            {showImageMenu && (
+              <motion.div
+                className="image-dropdown-menu"
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+              >
+                <button type="button" onClick={() => handleImageMenuSelect('background')}>Background image</button>
+                <button type="button" onClick={() => handleImageMenuSelect('center')}>Center image</button>
+                <button type="button" onClick={() => handleImageMenuSelect('entries')}>Images as entries</button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       <input
